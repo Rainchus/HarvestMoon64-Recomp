@@ -3,29 +3,39 @@
 [input]
 entrypoint = 0x80000400
 # Paths are relative to the location of this config file.
-elf_path = "quest64.elf"
+elf_path = "eltail.elf"
 output_func_path = "RecompiledFuncs"
 
 [patches]
 stubs = [
-    "func_800471B0", #some libleo function
-    "func_8004793C", #another libleo function
+    "osGbpakInit",
+    "LeoDiskHandle",
+    "func_8003719C",
+    #"func_800471B0", #some libleo function
+    #"func_8004793C", #another libleo function
     "initPFSPaks", #is this ever actually called??
-    "func_8003C530",
+    #"func_8003C530",
 ]
 
 ignored = [
-    "__osBlockSum",
+    #"__osBlockSum",
     "__osPfsReleasePages",
     "__osPfsDeclearPage",
 ]
 
 [[patches.hook]]
-func = "func_80024690"
+func = "func_80028550"
 text = "load_overlays(ctx->r4, ctx->r5, ctx->r6);"
-before_vram = 0x80024690
+before_vram = 0x80028550
 
 [[patches.hook]]
 func = "dma_write"
 text = "load_overlays(ctx->r4, ctx->r5, ctx->r6);"
-before_vram = 0x80024260
+before_vram = 0x80028120
+
+#dont check game name for save
+[[patches.instruction]]
+vram = 0x80035B98
+func = "func_80035A24"
+value = 0x00000000 # bnez $v0, .L80035BC8 -> nop
+

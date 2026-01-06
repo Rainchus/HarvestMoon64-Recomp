@@ -16,3 +16,6 @@
 [submodule "lib/sse2neon"]
 	path = lib/sse2neon
 	url = https://github.com/DLTcollab/sse2neon.git
+[submodule "lib/EltaleMonsters-Decomp"]
+	path = lib/EltaleMonsters-Decomp
+	url = https://github.com/Rainchus/EltaleMonsters-Decomp
