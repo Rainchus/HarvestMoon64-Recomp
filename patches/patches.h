@@ -34,7 +34,7 @@
 
 #define INVERT_Y_AXIS_COND_RES (recomp_get_invert_y_axis_mode() == 1 ? 1 : -1)
 
-#include "PR/2.0H/ultratypes.h"
+#include "ultratypes.h"
 #include "rt64_extended_gbi.h"
 #include "ultra64.h"
 

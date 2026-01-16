@@ -39,3 +39,8 @@ vram = 0x80035B98
 func = "func_80035A24"
 value = 0x00000000 # bnez $v0, .L80035BC8 -> nop
 
+#fix threads locking up when leaving file select
+[[patches.hook]]
+func = "func_8000275C"
+text = "    yield_self(rdram);"
+before_vram = 0x800028C0

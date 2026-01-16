@@ -1,7 +1,68 @@
 #include "patches.h"
+#include "os.h"
 
 int dummy = 1;
 int dummyBSS;
+
+typedef struct Unk {
+    u8 unk_00;
+    u8 unk_01;
+    u8 unk_02;
+} Unk;
+
+void func_80029198(s32, s8);
+void func_80029224(s32);
+void func_800292DC(s32);
+s32 func_80029328(s32);
+void func_80029A88(s8, u8, s32);
+void func_8002A900(void);
+extern s8 D_8008FAF0;
+extern s8 D_8008FAF1;
+extern u16 D_8008FAF2;
+extern u16 D_8008FAF6;
+extern Unk D_8008FAF8[16];
+
+RECOMP_PATCH void func_8002A558(void) {
+    Unk* var_s0;
+    s32 i;
+
+    if (D_8008FAF2 & 1) {
+        if (D_8008FAF6 == 0) {
+            if (D_8008FAF0 != -1) {
+                D_8008FAF2 |= 2;
+            } else {
+                D_8008FAF2 |= 4;
+            }
+            D_8008FAF2 &= ~1;
+        } else {
+            D_8008FAF6 -= 1;
+        }
+    }
+    if (D_8008FAF2 & 2) {
+        D_8008FAF2 &= ~2;
+        D_8008FAF2 = D_8008FAF2 | 4;
+        func_800292DC(0);
+    } else if ((D_8008FAF2 & 4) && (func_80029328(0) == 0)) {
+        D_8008FAF2 &= ~4;
+        D_8008FAF0 = D_8008FAF1;
+        if (D_8008FAF0 != -1) {
+            func_80029198(0, D_8008FAF0);
+            func_8002A900();
+            func_80029224(0);
+        }
+    }
+
+    i = 16;
+    var_s0 = D_8008FAF8;
+    for (; i > 0; i--, var_s0++) {
+        if (var_s0->unk_00 != 0) {
+            var_s0->unk_00--;
+            if (!(var_s0->unk_00)) {
+                func_80029A88(var_s0->unk_01, var_s0->unk_02, 0x40);
+            }
+        }
+    }
+}
 
 // extern s32 osPfsReadWriteFile_recomp(OSPfs *, s32, u8, int, int, u8 *);
 // extern s32 osPfsInitPak_recomp(OSMesgQueue *, OSPfs *, int);
@@ -132,25 +193,28 @@ int dummyBSS;
 // void func_8002DF6C(void);
 // s32 func_80031C0C(u8* str0, u8* str1, s32 size);
 
-RECOMP_PATCH void dma_write(u8* devAddr, void* vAddr, s32 size) {
-    u32 mesgSize;
+// extern OSIoMesg D_8008CEA0;
+// extern OSMesgQueue D_8007A1A8;
 
-    osInvalICache(vAddr, size);
-    osInvalDCache(vAddr, size);
+// RECOMP_PATCH void dma_write(u8* devAddr, void* vAddr, s32 size) {
+//     u32 mesgSize;
 
-    while (size != 0) {
-        if (size > 0x4000) {
-            mesgSize = 0x4000;
-        } else {
-            mesgSize = size;
-        }
-        osPiStartDma(&D_8008D070, 0, 0, (u32)devAddr, vAddr, mesgSize, &D_8007B320);
-        osRecvMesg(&D_8007B320, NULL, 1);
-        size -= mesgSize;
-        devAddr = devAddr + mesgSize;
-        vAddr = (u8*)vAddr + mesgSize;
-    }
-}
+//     osInvalICache(vAddr, size);
+//     //osInvalDCache(vAddr, size);
+
+//     while (size != 0) {
+//         if (size > 0x4000) {
+//             mesgSize = 0x4000;
+//         } else {
+//             mesgSize = size;
+//         }
+//         osPiStartDma(&D_8008CEA0, 0, 0, (u32)devAddr, vAddr, mesgSize, &D_8007A1A8);
+//         osRecvMesg(&D_8007A1A8, NULL, 1);
+//         size -= mesgSize;
+//         devAddr = devAddr + mesgSize;
+//         vAddr = (u8*)vAddr + mesgSize;
+//     }
+// }
 
 // RECOMP_PATCH s32 func_800319E0(s32 pfsIndex, s32 file_no, s32 offset, s32 nbytes, u8* data_buffer) {
 //     recomp_printf("func_800319E0 called");
