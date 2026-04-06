@@ -19,3 +19,6 @@
 [submodule "lib/EltaleMonsters-Decomp"]
 	path = lib/EltaleMonsters-Decomp
 	url = https://github.com/Rainchus/EltaleMonsters-Decomp
+[submodule "HarvestMoon64Syms"]
+	path = HarvestMoon64Syms
+	url = https://github.com/Rainchus/HarvestMoon64Syms
