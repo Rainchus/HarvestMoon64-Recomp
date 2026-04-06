@@ -7,7 +7,7 @@
 #include "recomp_input.h"
 
 namespace zelda64 {
-    constexpr std::u8string_view program_id = u8"EltaleMonstersRecompiled";
+    constexpr std::u8string_view program_id = u8"HarvestMoon64Recompiled";
     constexpr std::string_view program_name = "Eltale Monsters: Recompiled";
 
     // TODO: Move loading configs to the runtime once we have a way to allow per-project customization.

@@ -18,9 +18,9 @@ extern "C" void recomp_update_inputs(uint8_t* rdram, recomp_context* ctx) {
     recomp::poll_inputs();
 }
 
-extern "C" void sqrtf_recomp(uint8_t* rdram, recomp_context* ctx) {
-    ctx->f0.fl = sqrtf(ctx->f12.fl);
-}
+// extern "C" void sqrtf_recomp(uint8_t* rdram, recomp_context* ctx) {
+//     ctx->f0.fl = sqrtf(ctx->f12.fl);
+// }
 
 extern "C" void __ll_rshift_recomp(uint8_t * rdram, recomp_context * ctx) {
     int64_t a = (ctx->r4 << 32) | ((ctx->r5 << 0) & 0xFFFFFFFFu);

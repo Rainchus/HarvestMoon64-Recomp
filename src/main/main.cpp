@@ -328,12 +328,12 @@ void reset_audio(uint32_t output_freq) {
 }
 
 // extern RspUcodeFunc njpgdspMain;
-extern RspUcodeFunc aspMain;
+extern RspUcodeFunc n_aspMain;
 
 RspUcodeFunc* get_rsp_microcode(const OSTask* task) {
     switch (task->t.type) {
     case M_AUDTASK:
-        return aspMain;
+        return n_aspMain;
 
     // case M_NJPEGTASK:
     //     return njpgdspMain;
@@ -350,10 +350,10 @@ gpr get_entrypoint_address();
 // array of supported GameEntry objects
 std::vector<recomp::GameEntry> supported_games = {
     {
-        .rom_hash = 0x0831eddd4f2ffb3aULL,
-        .internal_name = "Etale Monsters",
-        .game_id = u8"etale_monsters",
-        .mod_game_id = "em64",
+        .rom_hash = 0x68b2c3755c527305ULL,
+        .internal_name = "Harvest Moon 64",
+        .game_id = u8"harvest_moon_64",
+        .mod_game_id = "hm64",
         .save_type = recomp::SaveType::AllowAll,
         .is_enabled = true,
         .entrypoint_address = get_entrypoint_address(),

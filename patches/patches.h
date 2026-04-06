@@ -28,7 +28,7 @@
 
 #define sinf __sinf_recomp
 #define cosf __cosf_recomp
-#define sqrtf sqrtf_recomp
+// #define sqrtf sqrtf_recomp
 #define bzero bzero_recomp
 #define gRandFloat sRandFloat
 

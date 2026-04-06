@@ -5,8 +5,8 @@
     {
       "type": "default",
       "project": "CMakeLists.txt",
-      "projectTarget": "EltaleMonstersRecompiled.exe",
-      "name": "EltaleMonstersRecompiled.exe",
+      "projectTarget": "HarvestMoon64Recompiled.exe",
+      "name": "HarvestMoon64Recompiled.exe",
       "currentDir": "${workspaceRoot}"
     }
   ]
