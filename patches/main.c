@@ -11,6 +11,7 @@ void yield_self_1ms(void);
 extern volatile u32	nuGfxTaskSpool;	/* number of tasks in the queue */
 
 RECOMP_PATCH void nuGfxTaskAllEndWait(void) {
+    //@recomp patch to prevent threads from locking up
     while (nuGfxTaskSpool) {
         yield_self_1ms();
     }
@@ -32,7 +33,7 @@ RECOMP_PATCH void func_80026284(void) {
             do {
             
                 stepMainLoop = FALSE;
-                
+                //@recomp patch to prevent threads from locking up
                 while (stepMainLoop == FALSE) {
                     yield_self_1ms();
                 }
@@ -105,7 +106,7 @@ RECOMP_PATCH void mainLoop(void) {
         nuGfxDisplayOn();
           
         while (engineStateFlags & 1) {
-            
+            //@recomp patch to prevent threads from locking up
             while (stepMainLoop == FALSE) {
                 yield_self_1ms();
             }
@@ -161,4 +162,100 @@ RECOMP_PATCH void mainLoop(void) {
         nuGfxDisplayOff();
     }
     
+}
+
+extern volatile u32 gGraphicsBufferIndex;
+extern volatile u8 gfxTaskNo;
+
+typedef struct Vec3f {
+    f32 x;
+    f32 y;
+    f32 z;
+} Vec3f;
+
+typedef struct {
+    f32 r, g, b, a;
+} Vec4f;
+
+typedef struct {
+    Mtx projection;
+    Mtx viewing;
+    f32 l;
+    f32 r;
+    f32 t;
+    f32 b;
+    f32 n;
+    f32 f;
+    f32 fov;
+    f32 aspect;
+    f32 near;
+    f32 far;
+    Vec3f eye;
+    Vec3f at;
+    Vec3f up;
+    u8 perspectiveMode;
+} Camera;
+
+typedef struct {
+    Mtx projection;
+    Mtx orthographic;
+    Mtx translationM;
+    Mtx scale;
+    Mtx rotationX;
+    Mtx rotationY;
+    Mtx rotationZ;
+    Mtx viewing;
+    Vec3f translation;
+    Vec3f scaling;
+    Vec3f rotation;
+    u32 unknown[0x2B];
+} SceneMatrices;
+
+extern Gfx* renderSceneGraph(Gfx* dl, SceneMatrices* arg1);
+extern SceneMatrices sceneMatrices[2];
+extern Gfx viewportDL[3];
+Gfx* setupCameraMatrices(Gfx*, Camera*, SceneMatrices*);
+Gfx* clearFramebuffer(Gfx* dl);
+Gfx* initRcp(Gfx*);
+volatile u8 startGfxTask(void);
+extern Camera gCamera;
+void nuGfxTaskStart(Gfx* gfxList_ptr, u32 gfxListSize, u32 ucode, u32 flag);
+
+#define NU_GFX_UCODE_F3DEX 0
+#define NU_SC_NOSWAPBUFFER 0x0000
+#define NU_SC_SWAPBUFFER 0x0001
+
+Gfx combinedGfxList[2][0x2800]; //should be plenty large enough to hold everything
+
+//@recomp modify the drawing logic so that everything is drawn in one task
+//this allows present early to work without flickering
+RECOMP_PATCH void drawFrame(void) {
+
+    gfxTaskNo = 0;
+
+    Gfx* dl = combinedGfxList[gGraphicsBufferIndex];
+
+    // --- init / clear ---
+    dl = initRcp(dl);
+    dl = clearFramebuffer(dl);
+
+    // --- scene ---
+    gSPDisplayList(dl++, OS_K0_TO_PHYSICAL(&viewportDL));
+    dl = setupCameraMatrices(dl, &gCamera, &sceneMatrices[gGraphicsBufferIndex]);
+    dl = renderSceneGraph(dl, &sceneMatrices[gGraphicsBufferIndex]);
+
+    // --- viewport ---
+    gSPDisplayList(dl++, OS_K0_TO_PHYSICAL(&viewportDL));
+
+    // --- finish ---
+    gDPFullSync(dl++);
+    gSPEndDisplayList(dl++);
+
+    nuGfxTaskStart(combinedGfxList[gGraphicsBufferIndex],
+                   (s32) (dl - combinedGfxList[gGraphicsBufferIndex]) * sizeof(Gfx), NU_GFX_UCODE_F3DEX,
+                   NU_SC_SWAPBUFFER);
+
+    gfxTaskNo += 1;
+
+    gGraphicsBufferIndex ^= 1;
 }
